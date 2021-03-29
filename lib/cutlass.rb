@@ -4,5 +4,7 @@ require_relative "cutlass/version"
 
 module Cutlass
   class Error < StandardError; end
-  # Your code goes here...
+
 end
+
+require_relative "cutlass/bash_result"
