@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module Cutlass
-
   RSpec.describe Cutlass::BashResult do
     it "preserves stdout, stderr, and status" do
       stdout = SecureRandom.hex(16)
