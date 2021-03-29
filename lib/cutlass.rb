@@ -2,7 +2,9 @@
 
 require_relative "cutlass/version"
 
+# Cutlass
 module Cutlass
+  # Error
   class Error < StandardError; end
 
 end
