@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require "tempfile"
+require "fileutils"
+require "pathname"
+
 require_relative "cutlass/version"
 
 # Cutlass
@@ -20,12 +23,28 @@ module Cutlass
   end
 
 
+  @default_repo_dirs = []
   def self.default_repo_dirs=(dirs)
-    @default_repo_dirs = Array(dirs)
+    @default_repo_dirs = Array(dirs).map {|dir| Pathname(dir) }
   end
 
   def self.default_repo_dirs
     @default_repo_dirs
+  end
+
+  def self.resolve_path(path)
+    return Pathname(path) if Dir.exist?(path)
+
+    children = @default_repo_dirs.map(&:children).flatten
+    resolved = children.detect {|p| p.basename.to_s == path }
+
+    return resolved if resolved
+
+    raise(<<~EOM)
+      No such directory name: #{path.inspect}
+
+      #{children.map(&:basename).join($/)}
+    EOM
   end
 
   def self.in_fork
