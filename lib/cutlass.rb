@@ -19,10 +19,12 @@ module Cutlass
   class << self
     # Cutlass.default_builder
     # Cutlass.default_buildpack_paths
+    #
     attr_accessor :default_builder, :default_buildpack_paths
   end
 
 
+  @default_buildpack_paths = []
   @default_repo_dirs = []
   def self.default_repo_dirs=(dirs)
     @default_repo_dirs = Array(dirs).map {|dir| Pathname(dir) }
@@ -69,3 +71,4 @@ module Cutlass
 end
 
 require_relative "cutlass/bash_result"
+require_relative "cutlass/app"
