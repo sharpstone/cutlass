@@ -2,6 +2,7 @@ PATH
   remote: .
   specs:
     cutlass (0.1.0)
+      docker-api (>= 2.0)
 
 GEM
   remote: https://rubygems.org/
@@ -9,6 +10,11 @@ GEM
     ast (2.4.2)
     dead_end (1.1.6)
     diff-lcs (1.4.4)
+    docker-api (2.1.0)
+      excon (>= 0.47.0)
+      multi_json
+    excon (0.79.0)
+    multi_json (1.15.0)
     parallel (1.20.1)
     parser (3.0.0.0)
       ast (~> 2.4.1)

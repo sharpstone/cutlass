@@ -13,4 +13,18 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+
+  config.before(:suite) do
+    Cutlass::CleanTestEnv.record
+  end
+
+  config.after(:suite) do
+    Cutlass::CleanTestEnv.check
+  end
+end
+
+def run!(command)
+  out = `#{command}`
+  raise "Command #{command} failed #{out}" unless $?.success?
+  out
 end
