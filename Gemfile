@@ -12,3 +12,4 @@ gem "rspec", "~> 3.0"
 gem "rubocop", "~> 1.7"
 
 gem "yard"
+gem "dead_end"
