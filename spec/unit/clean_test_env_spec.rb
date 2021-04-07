@@ -40,7 +40,10 @@ module Cutlass
 
         expect {
           CleanTestEnv.check(docker: true)
-        }.to raise_error /Docker images have leaked/
+        }.to raise_error do |e|
+          expect(e.message).to include("Docker images have leaked")
+          expect(e.message).to include(image_name)
+        end
       ensure
         repo_name, tag_name = image_name.split(":")
 
