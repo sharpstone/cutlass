@@ -16,9 +16,9 @@ module Cutlass
       @before_image_ids = Docker::Image.all.map(&:id).sort.freeze
     end
 
-    def self.check
+    def self.check(docker: ENV["CUTLASS_CHECK_DOCKER"])
       check_env
-      check_images
+      check_images if docker
     end
 
     def self.check_env

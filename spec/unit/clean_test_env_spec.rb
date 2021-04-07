@@ -39,7 +39,7 @@ module Cutlass
         run!("docker build -t #{image_name}  #{dir.join('.')} 2>&1")
 
         expect {
-          CleanTestEnv.check
+          CleanTestEnv.check(docker: true)
         }.to raise_error /Docker images have leaked/
       ensure
         repo_name, tag_name = image_name.split(":")
