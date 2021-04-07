@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-#
+
 require "open3"
 require "tempfile"
 require "fileutils"
@@ -76,3 +76,6 @@ end
 require_relative "cutlass/bash_result"
 require_relative "cutlass/app"
 require_relative "cutlass/clean_test_env"
+
+require_relative "cutlass/local_buildpack"
+
