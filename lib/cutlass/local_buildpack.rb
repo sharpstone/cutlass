@@ -25,7 +25,7 @@ module Cutlass
 
     def name
       call
-      "docker:://#{image_name}"
+      "docker://#{image_name}"
     end
 
     def call
@@ -54,7 +54,7 @@ module Cutlass
       build_sh = @directory.join("build.sh")
       return unless  build_sh.exist?
 
-      stdout, stderr, status = Open3.capture3("bash #{build_sh}")
+      stdout, stderr, status = Open3.capture3("cd #{@directory} && bash #{build_sh}")
 
       if status != 0
         raise "Buildpack build step failed!\nstdout: #{stdout}\nstderr: #{stderr}"
