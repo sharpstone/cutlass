@@ -2,6 +2,40 @@
 
 module Cutlass
   RSpec.describe Cutlass::App do
+    it "builds", slow: true do
+      Dir.mktmpdir do |app_dir|
+        App.new(
+          app_dir,
+          builder: "heroku/buildpacks:18",
+          buildpacks: "heroku/ruby"
+        ).transaction do |app|
+          app.tmpdir.join("Gemfile").write(<<~EOM)
+          EOM
+
+          app.tmpdir.join("Gemfile.lock").write(<<~EOM)
+            GEM
+              specs:
+
+            PLATFORMS
+              ruby
+              x86_64-darwin-19
+              x86_64-linux
+
+            DEPENDENCIES
+
+            RUBY VERSION
+               ruby 2.7.2p137
+          EOM
+
+          app.pack_build do |result|
+            expect(result.stdout).to include("Successfully built image")
+          end
+
+          expect(app.stdout).to include("Successfully built image")
+        end
+      end
+    end
+
     it "what happens in a transaction on disk stays in a transaction" do
       Dir.mktmpdir do |source_dir|
         App.new(source_dir).transaction do |app|
@@ -48,12 +82,13 @@ module Cutlass
       Dir.mktmpdir do |source_dir|
         FileUtils.touch(File.join(source_dir, "cat"))
 
-        app = App.new(source_dir)
-        app.in_dir do |tmpdir|
-          expect(tmpdir.join("cat")).to exist
+        App.new(source_dir).tap do |app|
+          app.in_dir do |tmpdir|
+            expect(tmpdir.join("cat")).to exist
 
-          expect(tmpdir).to_not eq(source_dir)
-          expect(Dir.pwd).to_not eq(source_dir)
+            expect(tmpdir).to_not eq(source_dir)
+            expect(Dir.pwd).to_not eq(source_dir)
+          end
         end
       end
     end

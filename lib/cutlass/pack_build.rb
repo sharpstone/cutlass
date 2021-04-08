@@ -54,6 +54,7 @@ module Cutlass
     def call
       puts pack_command if ENV["CUTLASS_DEBUG"] || ENV["DEBUG"]
       call_pack
+      self
     end
 
     def failed?
