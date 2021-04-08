@@ -28,3 +28,58 @@ def run!(command)
   raise "Command #{command} failed #{out}" unless $?.success?
   out
 end
+
+def with_stub_buildpack
+  Dir.mktmpdir do |dir|
+    dir = Pathname(dir)
+    name = SecureRandom.hex(10)
+
+    dir.join("package.toml").write(<<~EOM)
+      [buildpack]
+      uri = "."
+    EOM
+    dir.join("buildpack.toml").write(<<~EOM)
+      api = "0.6"
+
+      [buildpack]
+      id = "cutlass/supreme_#{name}"
+      version = "0.0.1"
+
+      [[stacks]]
+      id = "io.buildpacks.stacks.bionic"
+
+      [[stacks]]
+      id = "heroku-18"
+
+      [[stacks]]
+      id = "heroku-20"
+    EOM
+
+    dir.join("bin/detect").tap do |file|
+      file.dirname.mkpath;
+      file.write(<<~EOM)
+        #!/usr/bin/env bash
+
+        exit 0
+      EOM
+
+      FileUtils.chmod("+x", file)
+    end
+
+    dir.join("bin/build").tap do |file|
+      file.write(<<~EOM)
+        #!/usr/bin/env bash
+
+        exit 0
+      EOM
+
+      FileUtils.chmod("+x", file)
+    end
+
+    local_buildpack = Cutlass::LocalBuildpack.new(directory: dir)
+    local_buildpack.call
+    yield local_buildpack
+  ensure
+    local_buildpack.teardown if local_buildpack
+  end
+end

@@ -2,7 +2,7 @@
 
 module Cutlass
   RSpec.describe Cutlass::LocalBuildpack do
-    it "builds images and tears them down while calling build.sh if it exists" do
+    it "builds images and tears them down while calling build.sh if it exists", slow: true do
       Dir.mktmpdir do |dir|
         name = SecureRandom.hex(10)
         dir = Pathname(dir)

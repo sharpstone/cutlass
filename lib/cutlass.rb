@@ -22,7 +22,6 @@ module Cutlass
   class << self
     # Cutlass.default_builder
     # Cutlass.default_buildpack_paths
-    #
     attr_accessor :default_builder, :default_buildpack_paths
   end
 
@@ -50,6 +49,10 @@ module Cutlass
 
       #{children.map(&:basename).join($/)}
     EOM
+  end
+
+  def self.default_image_name
+    "cutlass_image_#{SecureRandom.hex(10)}"
   end
 
   def self.in_fork

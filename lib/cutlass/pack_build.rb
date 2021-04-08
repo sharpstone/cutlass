@@ -4,7 +4,7 @@ module Cutlass
   class PackBuild
     private; attr_reader :app_dir, :config, :builder, :image_name, :buildpacks, :exception_on_failure, :env_arguments; public
 
-    def initialize(app_dir:, exception_on_failure: true, image_name: default_image_name, buildpacks: [], config: {}, builder: nil)
+    def initialize(app_dir:, exception_on_failure: true, image_name: Cutlass.default_image_name, buildpacks: [], config: {}, builder: nil)
 
       @app_dir = app_dir
       @builder = builder
@@ -81,10 +81,6 @@ module Cutlass
 
     def pack_command
       "pack build #{image_name} --path #{app_dir} #{builder_arg} --buildpack #{buildpacks.join(',')} #{env_arguments}"
-    end
-
-    def default_image_name
-      "cutlass_image_#{SecureRandom.hex(10)}"
     end
   end
 end
