@@ -83,3 +83,7 @@ def with_stub_buildpack
     local_buildpack&.teardown
   end
 end
+
+def default_heroku_builder
+  "heroku/builder:18"
+end

@@ -45,10 +45,7 @@ module Cutlass
           expect(e.message).to include(image_name)
         end
       ensure
-        repo_name, tag_name = image_name.split(":")
-
-        docker_list = run!("docker images --no-trunc | grep #{repo_name} | grep #{tag_name}").strip
-        run!("docker rmi #{image_name} --force") unless docker_list.empty?
+        Docker::Image.get(image_name)&.remove(force: true) if image_name
       end
     end
   end
