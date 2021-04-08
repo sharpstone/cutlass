@@ -59,7 +59,7 @@ module Cutlass
       end
     end
 
-    it "builds an docker image" do
+    it "builds a docker image", slow: true do
       with_stub_buildpack do |buildpack|
 
         Dir.mktmpdir do |app_dir|

@@ -24,7 +24,7 @@ module Cutlass
       end
     end
 
-    it "checks docker images" do
+    it "checks docker images", slow: true do
       Dir.mktmpdir do |dir|
         image_name = "cutlass_#{SecureRandom.hex(10)}:sup"
 
