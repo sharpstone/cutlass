@@ -85,5 +85,5 @@ def with_stub_buildpack
 end
 
 def default_heroku_builder
-  "heroku/builder:18"
+  "heroku/buildpacks:18"
 end
