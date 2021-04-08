@@ -33,11 +33,10 @@ module Cutlass
         expect(dir.entries.map(&:to_s)).to include(name)
 
         expect(diff.call.changed?).to be_truthy
-        local_buildpack.teardown if local_buildpack
+        local_buildpack&.teardown
 
         expect(diff.call.changed?).to be_falsey
       end
     end
   end
 end
-

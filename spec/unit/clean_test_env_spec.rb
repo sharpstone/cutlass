@@ -6,7 +6,7 @@ module Cutlass
       diff = EnvDiff.new(before_env: {foo: "bar"}, env: {})
 
       expect(diff.changed?).to be_truthy
-      expect("#{diff}").to include("ENV['foo'] changed from 'bar' to ''")
+      expect(diff.to_s).to include("ENV['foo'] changed from 'bar' to ''")
     end
   end
 
@@ -36,7 +36,7 @@ module Cutlass
           CMD ["echo", "Hello world #{image_name}!"]
         EOM
 
-        run!("docker build -t #{image_name}  #{dir.join('.')} 2>&1")
+        run!("docker build -t #{image_name}  #{dir.join(".")} 2>&1")
 
         expect {
           CleanTestEnv.check(docker: true)
@@ -48,7 +48,7 @@ module Cutlass
         repo_name, tag_name = image_name.split(":")
 
         docker_list = run!("docker images --no-trunc | grep #{repo_name} | grep #{tag_name}").strip
-        run!("docker rmi #{image_name} --force") if !docker_list.empty?
+        run!("docker rmi #{image_name} --force") unless docker_list.empty?
       end
     end
   end

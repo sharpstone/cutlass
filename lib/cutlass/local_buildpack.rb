@@ -1,16 +1,19 @@
 # frozen_string_literal: true
 
 module Cutlass
-
   # Converts a buildpack in a local directory into an image that pack can use natively
   #
   #   buildpack = LocalBuildpack.new(directory: "/tmp/muh_buildpack").call
   #   puts buildpack.name #=> "docker:://cutlass_local_buildpack_abcd123"
   #
   class LocalBuildpack
-    private; attr_reader :image_name; public
+    private
 
-    def initialize(directory: )
+    attr_reader :image_name
+
+    public
+
+    def initialize(directory:)
       @built = false
       @directory = Pathname(directory)
       @image_name = "cutlass_local_buildpack_#{SecureRandom.hex(10)}"
@@ -45,20 +48,31 @@ module Cutlass
 
       pack_command = "pack buildpack package #{image_name} --config #{@directory.join("package.toml")} --format=image"
       stdout, stderr, status = Open3.capture3(pack_command)
-      if status != 0
-        raise "While packaging meta-buildpack: pack exited with status code #{status}, indicating an error and failed build!\nstderr: #{stderr}"
-      end
+
+      return if status.success?
+      raise <<~EOM
+        While packaging meta-buildpack: pack exited with status code #{status},
+        indicating an error and failed build!
+
+        stdout: #{stdout}
+        stderr: #{stderr}
+      EOM
     end
 
     private def call_build_sh
       build_sh = @directory.join("build.sh")
-      return unless  build_sh.exist?
+      return unless build_sh.exist?
 
       stdout, stderr, status = Open3.capture3("cd #{@directory} && bash #{build_sh}")
 
-      if status != 0
-        raise "Buildpack build step failed!\nstdout: #{stdout}\nstderr: #{stderr}"
-      end
+      return if status.success?
+
+      raise <<~EOM
+        Buildpack build step failed!
+
+        stdout: #{stdout}
+        stderr: #{stderr}
+      EOM
     end
 
     def built?
@@ -66,4 +80,3 @@ module Cutlass
     end
   end
 end
-

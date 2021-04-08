@@ -14,7 +14,7 @@ module Cutlass
 
     def self.record
       @env_diff = EnvDiff.new(skip_keys: @skip_keys)
-      @docker_diff= DockerDiff.new
+      @docker_diff = DockerDiff.new
     end
 
     def self.check(docker: ENV["CUTLASS_CHECK_DOCKER"])
@@ -37,7 +37,6 @@ module Cutlass
     def self.check_images
       diff = @docker_diff.call
       return if diff.same?
-
 
       raise <<~EOM
         Docker images have leaked

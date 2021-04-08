@@ -17,7 +17,7 @@ module Cutlass
     class DiffValue
       attr_reader :diff_ids
 
-      def initialize(before_ids: , now_ids: )
+      def initialize(before_ids:, now_ids:)
         @diff_ids = now_ids - before_ids
       end
 
@@ -42,5 +42,4 @@ module Cutlass
       end
     end
   end
-
 end

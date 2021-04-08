@@ -20,11 +20,8 @@ module Cutlass
     end
 
     def pack_build
-      begin
-
-        # TODO
-        yield result
-      end
+      # TODO
+      yield result
     end
 
     def transaction

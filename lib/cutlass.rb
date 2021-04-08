@@ -14,7 +14,6 @@ module Cutlass
   # Error
   class Error < StandardError; end
 
-
   def self.config
     yield self
   end
@@ -25,11 +24,10 @@ module Cutlass
     attr_accessor :default_builder, :default_buildpack_paths
   end
 
-
   @default_buildpack_paths = []
   @default_repo_dirs = []
   def self.default_repo_dirs=(dirs)
-    @default_repo_dirs = Array(dirs).map {|dir| Pathname(dir) }
+    @default_repo_dirs = Array(dirs).map { |dir| Pathname(dir) }
   end
 
   def self.default_repo_dirs
@@ -40,7 +38,7 @@ module Cutlass
     return Pathname(path) if Dir.exist?(path)
 
     children = @default_repo_dirs.map(&:children).flatten
-    resolved = children.detect {|p| p.basename.to_s == path }
+    resolved = children.detect { |p| p.basename.to_s == path }
 
     return resolved if resolved
 
@@ -82,4 +80,3 @@ require_relative "cutlass/clean_test_env"
 
 require_relative "cutlass/local_buildpack"
 require_relative "cutlass/pack_build"
-

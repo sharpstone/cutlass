@@ -22,7 +22,7 @@ module Cutlass
           expect(diff.call.changed?).to be_truthy
           expect(pack_build.success?).to be_truthy
         ensure
-          pack_build.teardown if pack_build
+          pack_build&.teardown if pack_build
         end
       end
     end

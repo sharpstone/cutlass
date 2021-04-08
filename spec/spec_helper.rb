@@ -56,7 +56,7 @@ def with_stub_buildpack
     EOM
 
     dir.join("bin/detect").tap do |file|
-      file.dirname.mkpath;
+      file.dirname.mkpath
       file.write(<<~EOM)
         #!/usr/bin/env bash
 
@@ -80,6 +80,6 @@ def with_stub_buildpack
     local_buildpack.call
     yield local_buildpack
   ensure
-    local_buildpack.teardown if local_buildpack
+    local_buildpack&.teardown
   end
 end

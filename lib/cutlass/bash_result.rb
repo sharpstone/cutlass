@@ -13,7 +13,7 @@ module Cutlass
     # @param stdout [String]
     # @param stderr [String]
     # @param status [Numeric]
-    def initialize(stdout: , stderr: , status:)
+    def initialize(stdout:, stderr:, status:)
       @stdout = stdout
       @stderr = stderr
       @status = status

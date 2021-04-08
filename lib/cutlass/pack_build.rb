@@ -2,14 +2,24 @@
 
 module Cutlass
   class PackBuild
-    private; attr_reader :app_dir, :config, :builder, :image_name, :buildpacks, :exception_on_failure, :env_arguments; public
+    private
 
-    def initialize(app_dir:, exception_on_failure: true, image_name: Cutlass.default_image_name, buildpacks: [], config: {}, builder: nil)
+    attr_reader :app_dir, :config, :builder, :image_name, :buildpacks, :exception_on_failure, :env_arguments
 
+    public
+
+    def initialize(
+      app_dir:,
+      config: {},
+      builder: nil,
+      buildpacks: [],
+      image_name: Cutlass.default_image_name,
+      exception_on_failure: true
+    )
       @app_dir = app_dir
       @builder = builder
       @image_name = image_name
-      @env_arguments = config.map {|key, value| "--env #{key}=#{value}" }.join(" ")
+      @env_arguments = config.map { |key, value| "--env #{key}=#{value}" }.join(" ")
       @exception_on_failure = exception_on_failure
       @image = nil
       @result = nil
@@ -80,7 +90,7 @@ module Cutlass
     end
 
     def pack_command
-      "pack build #{image_name} --path #{app_dir} #{builder_arg} --buildpack #{buildpacks.join(',')} #{env_arguments}"
+      "pack build #{image_name} --path #{app_dir} #{builder_arg} --buildpack #{buildpacks.join(",")} #{env_arguments}"
     end
   end
 end

@@ -22,7 +22,7 @@ module Cutlass
           dir = Pathname(dir)
 
           names = ["dog", "cat", "bat"]
-          dirs = names.map {|name| dir.join(name) }
+          dirs = names.map { |name| dir.join(name) }
           dirs.each(&:mkdir)
 
           Cutlass.config do |config|
