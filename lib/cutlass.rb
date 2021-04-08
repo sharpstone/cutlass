@@ -78,4 +78,5 @@ require_relative "cutlass/app"
 require_relative "cutlass/clean_test_env"
 
 require_relative "cutlass/local_buildpack"
+require_relative "cutlass/pack_build"
 
