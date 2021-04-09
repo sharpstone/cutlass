@@ -28,7 +28,6 @@ module Cutlass
 
     def stdout
       builds.last.stdout
-      builds.last.stdout
     end
 
     def stderr
