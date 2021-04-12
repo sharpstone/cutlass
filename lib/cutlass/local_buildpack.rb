@@ -3,8 +3,20 @@
 module Cutlass
   # Converts a buildpack in a local directory into an image that pack can use natively
   #
-  #   buildpack = LocalBuildpack.new(directory: "/tmp/muh_buildpack").call
-  #   puts buildpack.name #=> "docker:://cutlass_local_buildpack_abcd123"
+  #   MY_BUILDPACK = LocalBuildpack.new(directory: "/tmp/muh_buildpack").call
+  #   puts MY_BUILDPACK.name #=> "docker:://cutlass_local_buildpack_abcd123"
+  #
+  #   Cutlass.config do |config|
+  #     config.default_buildapacks = [MY_BUILDPACK]
+  #   end
+  #
+  # Note: Make sure that any built images are torn down in in your test suite
+  #
+  #    config.after(:suite) do
+  #      MY_BUILDPACK.teardown
+  #
+  #      Cutlass::CleanTestEnv.check
+  #    end
   #
   class LocalBuildpack
     private

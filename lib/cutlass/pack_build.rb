@@ -1,6 +1,18 @@
 # frozen_string_literal: true
 
 module Cutlass
+  # Build an image with `pack` and cloud native buildpacks
+  #
+  #  begin
+  #    build = PackBuild.new(app_dir: dir, buildpacks: ["heroku/ruby"], builder: "heroku/buildpacks:18")
+  #    build.call
+  #
+  #    build.stdout # => "...Successfully built image"
+  #    build.success? # => true
+  #  ensure
+  #    build.teardown
+  #  end
+  #
   class PackBuild
     private
 

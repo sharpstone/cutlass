@@ -4,6 +4,29 @@ require_relative "env_diff"
 require_relative "docker_diff"
 
 module Cutlass
+  # Ensure that your environment variables and docker images aren't leaking in tests
+  #
+  # Docker image leaking is disabled by default in development. Set CUTLASS_CHECK_DOCKER
+  # in CI.
+  #
+  #   CleanTestEnv.record
+  #   CleanTestEnv.check(docker: true)
+  #   # => nil
+  #
+  #   BashResult.run("docker build .")
+  #
+  #   CleanTestEnv.check(docker: true)
+  #   # => Error: Docker images have leaked
+  #
+  # The common practice is to use this in rspec hooks
+  #
+  #   config.before(:suite) do
+  #     Cutlass::CleanTestEnv.record
+  #   end
+  #
+  #   config.after(:suite) do
+  #     Cutlass::CleanTestEnv.check
+  #   end
   class CleanTestEnv
     @before_images = []
     @skip_keys = ["HEROKU_API_KEY"]

@@ -1,6 +1,15 @@
 # frozen_string_literal: true
 
 module Cutlass
+  # Diffs docker images
+  #
+  #   diff = DockerDiff.new
+  #
+  #   diff.call.changed? # => false
+  #
+  #   BashResult.run("docker build .")
+  #
+  #   diff.call.changed? # => true
   class DockerDiff
     def initialize(before_ids: nil, get_image_ids_proc: -> { Docker::Image.all.map(&:id) })
       @before_ids = before_ids || get_image_ids_proc.call

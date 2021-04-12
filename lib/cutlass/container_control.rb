@@ -1,12 +1,21 @@
 # frozen_string_literal: true
 
 module Cutlass
+  # This class is exposed via a ContainerBoot instance
+  #
+  # Once a container is booted, if a port is bound an instance will
+  # return the local port that can be used to send network requests to the container.
+  #
+  # In addition bash commands can be executed via ContainerControl#bash_exec
+  #
   class ContainerControl
-    def initialize(container)
+    def initialize(container, ports: [])
       @container = container
+      @ports = ports
     end
 
     def get_host_port(port)
+      raise "Port not bound inside container: #{port}, bound ports: #{@ports.inspect}" unless @ports.include?(port)
       @container.json["NetworkSettings"]["Ports"]["#{port}/tcp"][0]["HostPort"]
     end
 
@@ -19,14 +28,11 @@ module Cutlass
     end
 
     def bash_exec(cmd, exception_on_failure: true)
-      stdout_ish, stderr, status_ish = @container.exec(["bash", "-c", cmd])
-      stdout = stdout_ish.first
-      `exit #{status_ish}`
-      status = $?
+      stdout_ish, stderr, status = @container.exec(["bash", "-c", cmd])
 
-      result = BashResult.new(stdout: stdout, stderr: stderr, status: status)
+      result = BashResult.new(stdout: stdout_ish.first, stderr: stderr, status: status)
 
-      return result if status.success?
+      return result if result.success?
       return result unless exception_on_failure
 
       raise <<~EOM

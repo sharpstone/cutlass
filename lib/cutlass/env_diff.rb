@@ -1,6 +1,15 @@
 # frozen_string_literal: true
 
 module Cutlass
+  # Diffs the environment
+  #
+  #   diff = EnvDiff.new
+  #
+  #   diff.changed? # => false
+  #
+  #   ENV["LOL"] = "rofl"
+  #
+  #   diff.changed? # => true
   class EnvDiff
     attr_reader :before_env, :env, :skip_keys
 
