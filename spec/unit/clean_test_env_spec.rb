@@ -26,26 +26,28 @@ module Cutlass
 
     it "checks docker images", slow: true do
       Dir.mktmpdir do |dir|
-        image_name = "cutlass_#{SecureRandom.hex(10)}:sup"
+        Cutlass.in_fork do
+          image_name = "cutlass_#{SecureRandom.hex(10)}:sup"
 
-        CleanTestEnv.record
-        dir = Pathname(dir)
-        dockerfile = dir.join("Dockerfile")
-        dockerfile.write <<~EOM
-          FROM heroku/heroku:18
-          CMD ["echo", "Hello world #{image_name}!"]
-        EOM
+          CleanTestEnv.record
+          dir = Pathname(dir)
+          dockerfile = dir.join("Dockerfile")
+          dockerfile.write <<~EOM
+            FROM heroku/heroku:18
+            CMD ["echo", "Hello world #{image_name}!"]
+          EOM
 
-        run!("docker build -t #{image_name}  #{dir.join(".")} 2>&1")
+          run!("docker build -t #{image_name}  #{dir.join(".")} 2>&1")
 
-        expect {
-          CleanTestEnv.check(docker: true)
-        }.to raise_error do |e|
-          expect(e.message).to include("Docker images have leaked")
-          expect(e.message).to include(image_name)
+          expect {
+            CleanTestEnv.check(docker: true)
+          }.to raise_error do |e|
+            expect(e.message).to include("Docker images have leaked")
+            expect(e.message).to include(image_name)
+          end
+        ensure
+          Docker::Image.get(image_name)&.remove(force: true) if image_name
         end
-      ensure
-        Docker::Image.get(image_name)&.remove(force: true) if image_name
       end
     end
   end
