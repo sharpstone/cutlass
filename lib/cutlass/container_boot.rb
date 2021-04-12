@@ -34,6 +34,7 @@ module Cutlass
   # inside of a CNB image, that env vars won't be set and the directory might be different.
   class ContainerBoot
     def initialize(image_id:, expose_ports: [])
+      @expose_ports = Array(expose_ports)
       config = {
         "Image" => image_id,
         "ExposedPorts" => {},
@@ -44,7 +45,7 @@ module Cutlass
 
       port_bindings = config["HostConfig"]["PortBindings"]
 
-      Array(expose_ports).each do |port|
+      @expose_ports.each do |port|
         config["ExposedPorts"]["#{port}/tcp"] = {}
 
         # If we do not specify a port, Docker will grab a random unused one:
@@ -60,7 +61,7 @@ module Cutlass
       @container.start!
       stdout = @container.logs(stdout: 1)
       stderr = @container.logs(stderr: 1)
-      yield ContainerControl.new(@container)
+      yield ContainerControl.new(@container, ports: @expose_ports)
     rescue Docker::Error::ConflictError => e
       raise e, <<~EOM
         boot stdout: #{stdout}
