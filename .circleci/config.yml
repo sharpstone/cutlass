@@ -15,7 +15,7 @@ references:
   docker_pre_pull: &docker_pre_pull
     run:
       name: Pre-pull layers we don't intentd to clean up
-      command: docker pull heroku/heroku:18 && docker pull heroku/pack:18 && heroku/buildpacks:18
+      command: docker pull heroku/heroku:18 && docker pull heroku/pack:18 && docker pull heroku/buildpacks:18
   standardrb: &standardrb
     run:
       name: Linting
