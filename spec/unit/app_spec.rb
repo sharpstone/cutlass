@@ -96,7 +96,7 @@ module Cutlass
           expect(animals).to eq([])
         end
 
-        expect(animals).to eq(["dog", "cat"])
+        expect(animals.sort).to eq(["cat", "dog"])
       end
     end
 

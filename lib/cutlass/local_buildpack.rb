@@ -47,15 +47,15 @@ module Cutlass
       raise "must contain package.toml: #{@directory}" unless @directory.join("package.toml").exist?
 
       pack_command = "pack buildpack package #{image_name} --config #{@directory.join("package.toml")} --format=image"
-      stdout, stderr, status = Open3.capture3(pack_command)
+      result = BashResult.run(pack_command)
 
-      return if status.success?
+      return if result.success?
       raise <<~EOM
-        While packaging meta-buildpack: pack exited with status code #{status},
+        While packaging meta-buildpack: pack exited with status code #{result.status},
         indicating an error and failed build!
 
-        stdout: #{stdout}
-        stderr: #{stderr}
+        stdout: #{result.stdout}
+        stderr: #{result.stderr}
       EOM
     end
 
@@ -63,15 +63,15 @@ module Cutlass
       build_sh = @directory.join("build.sh")
       return unless build_sh.exist?
 
-      stdout, stderr, status = Open3.capture3("cd #{@directory} && bash #{build_sh}")
+      result = BashResult.run("cd #{@directory} && bash #{build_sh}")
 
-      return if status.success?
+      return if result.success?
 
       raise <<~EOM
         Buildpack build step failed!
 
-        stdout: #{stdout}
-        stderr: #{stderr}
+        stdout: #{result.stdout}
+        stderr: #{result.stderr}
       EOM
     end
 

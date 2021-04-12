@@ -12,7 +12,6 @@ module Cutlass
   #
   #     expect(result.stdout).to include("Successfully built image")
   #   end
-
   class App
     attr_reader :builds, :config, :builder, :buildpacks, :exception_on_failure, :image_name, :tmpdir
 

@@ -1,7 +1,13 @@
+require "open3"
+
 module Cutlass
   # Value object containing the results of bash commands
+  #
+  # result = BashResult.run("echo 'lol')
+  # result.stdout # => "lol"
+  # result.status # => 0
+  # result.success? # => true
   class BashResult
-
     def self.run(command)
       stdout, stderr, status = Open3.capture3(command)
       BashResult.new(stdout: stdout, stderr: stderr, status: status)
