@@ -19,7 +19,7 @@ module Cutlass
           ENTRYPOINT socat -v -T0.05 tcp-l:8080,reuseaddr,fork system:"echo 'HTTP/1.1 200 OK'; echo 'Connection: close'; echo; cat"
         EOM
 
-        run!("docker build -t #{image_name} #{dir.join(".")} 2>&1")
+        docker_build_out = run!("docker build -t #{image_name} #{dir.join(".")} 2>&1")
         image = Docker::Image.get(image_name)
 
         ContainerBoot.new(image_id: image.id, expose_ports: [8080]).call do |container|
@@ -29,8 +29,10 @@ module Cutlass
           expect(container.contains_file?("lol")).to be_truthy
 
           payload = SecureRandom.hex(10)
+          port = container.get_host_port(8080)
+
           response = Excon.post(
-            "http://localhost:#{container.get_host_port(8080)}/?payload=#{payload}",
+            "http://localhost:#{port}/?payload=#{payload}",
             idempotent: true,
             retry_limit: 5,
             retry_interval: 1
@@ -39,6 +41,12 @@ module Cutlass
           expect(response.body).to include("?payload=#{payload}")
           expect(response.status).to eq(200)
         end
+      rescue => error
+        raise error, <<~EOM
+          #{error.message}
+
+          docker build: #{docker_build_out}
+        EOM
       ensure
         image&.remove(force: true)
       end

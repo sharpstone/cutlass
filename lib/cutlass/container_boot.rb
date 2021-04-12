@@ -59,15 +59,13 @@ module Cutlass
       raise "Must call with a block" unless block_given?
 
       @container.start!
-      stdout = @container.logs(stdout: 1)
-      stderr = @container.logs(stderr: 1)
       yield ContainerControl.new(@container, ports: @expose_ports)
     rescue => error
       raise error, <<~EOM
         message #{error.message}
 
-        boot stdout: #{stdout}
-        boot stderr: #{stderr}
+        boot stdout: #{@container.logs(stdout: 1)}
+        boot stderr: #{@container.logs(stderr: 1)}
       EOM
     ensure
       @container&.delete(force: true)
