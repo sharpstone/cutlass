@@ -80,3 +80,4 @@ require_relative "cutlass/clean_test_env"
 
 require_relative "cutlass/local_buildpack"
 require_relative "cutlass/pack_build"
+require_relative "cutlass/container_boot"
