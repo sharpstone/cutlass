@@ -33,6 +33,11 @@ module Cutlass
       end
     end
 
+    def image_id
+      raise "No image ID, container was not successfully built, #{error_message}" if @image.nil?
+      @image.id
+    end
+
     def result
       raise "Must execute method `call` first" unless @result
 
@@ -66,24 +71,25 @@ module Cutlass
     end
 
     private def call_pack
-      stdout, stderr, status = Open3.capture3(pack_command)
-      @result = BashResult.new(stdout: stdout, stderr: stderr, status: status)
+      @result = BashResult.run(pack_command)
 
-      if status == 0
+      if @result.success?
         @image = Docker::Image.get(image_name)
       else
         @image = nil
 
-        if exception_on_failure
-          raise <<~EOM
-            Pack exited with status code #{status}, indicating a build failed
-
-            command: #{pack_command}
-            stdout: #{stdout}
-            stderr: #{stderr}
-          EOM
-        end
+        raise error_message if exception_on_failure
       end
+    end
+
+    private def error_message
+      <<~EOM
+        Pack exited with status code #{@result.status}, indicating a build failed
+
+        command: #{pack_command}
+        stdout: #{stdout}
+        stderr: #{stderr}
+      EOM
     end
 
     def builder_arg

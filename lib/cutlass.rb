@@ -34,6 +34,9 @@ module Cutlass
     @default_repo_dirs
   end
 
+  # Given a full path that exists it will return the same path.
+  # Given the name of a directory within the default repo dirs,
+  # it will match and return a full path
   def self.resolve_path(path)
     return Pathname(path) if Dir.exist?(path)
 
@@ -53,6 +56,8 @@ module Cutlass
     "cutlass_image_#{SecureRandom.hex(10)}"
   end
 
+  # Runs the block in a process fork to isolate memory
+  # or environment changes such as ENV var modifications
   def self.in_fork
     Tempfile.create("stdout") do |tmp_file|
       pid = fork do

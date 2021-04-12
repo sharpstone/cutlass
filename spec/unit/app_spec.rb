@@ -4,10 +4,12 @@ module Cutlass
   RSpec.describe Cutlass::App do
     it "builds", slow: true do
       Dir.mktmpdir do |app_dir|
+        run_multi_called_string = nil
+
         App.new(
           app_dir,
           builder: "heroku/buildpacks:18",
-          buildpacks: "heroku/ruby"
+          buildpacks: ["heroku/ruby", "heroku/procfile"],
         ).transaction do |app|
           app.tmpdir.join("Gemfile").write(<<~EOM)
           EOM
@@ -27,12 +29,32 @@ module Cutlass
                ruby 2.7.2p137
           EOM
 
+          app.tmpdir.join("Procfile").write(<<~EOM)
+            web: touch lol && tail -f lol # Need an entrypoint that doesn't exit
+          EOM
+
           app.pack_build do |result|
             expect(result.stdout).to include("Successfully built image")
           end
 
+          # App#stdout is the same as App#last_build.stdout
           expect(app.stdout).to include("Successfully built image")
+
+
+          expect(app.run("pwd")).to match("/workspace")
+
+          app.run_multi("pwd") do |result|
+            run_multi_called_string = "called"
+            expect(result).to match("/workspace")
+          end
+
+
+          app.start_container do |container|
+            expect(container.bash_exec("ls /app")).to include("Gemfile")
+          end
         end
+
+        expect(run_multi_called_string).to eq("called")
       end
     end
 

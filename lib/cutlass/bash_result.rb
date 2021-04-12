@@ -1,6 +1,12 @@
 module Cutlass
   # Value object containing the results of bash commands
   class BashResult
+
+    def self.run(command)
+      stdout, stderr, status = Open3.capture3(command)
+      BashResult.new(stdout: stdout, stderr: stderr, status: status)
+    end
+
     # @return [String]
     attr_reader :stdout
 
@@ -24,8 +30,21 @@ module Cutlass
       @status == 0
     end
 
-    def to_s
-      stdout
+    def failed?
+      !success?
+    end
+
+    # Testing helper methods
+    def include?(value)
+      stdout.include?(value)
+    end
+
+    def match?(value)
+      stdout.match?(value)
+    end
+
+    def match(value)
+      stdout.match(value)
     end
   end
 end
