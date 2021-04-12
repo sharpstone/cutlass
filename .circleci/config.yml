@@ -22,7 +22,8 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: 19.03.13
-      - pack/install-pack
+      - pack/install-pack:
+          version: 0.16.0
       - ruby/install-deps
       - <<: *specs
   standardrb:
