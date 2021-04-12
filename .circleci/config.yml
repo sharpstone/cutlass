@@ -16,12 +16,11 @@ references:
 
 jobs:
   specs:
-    docker:
-      - image: circleci/ruby:2.7
+    machine:
+      image: ubuntu-2004:202010-01
+    resource_class: xlarge
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 19.03.13
       - pack/install-pack:
           version: 0.16.0
       - ruby/install-deps
