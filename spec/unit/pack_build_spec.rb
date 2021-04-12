@@ -9,7 +9,7 @@ module Cutlass
 
           pack_build = Cutlass::PackBuild.new(
             app_dir: app_dir,
-            builder: nil,
+            builder: "heroku/buildpacks:18",
             buildpacks: buildpack
           )
 
