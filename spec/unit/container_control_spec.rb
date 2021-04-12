@@ -9,7 +9,7 @@ module Cutlass
         image_name = Cutlass.default_image_name
         dockerfile = dir.join("Dockerfile")
         dockerfile.write <<~EOM
-          FROM heroku/heroku:20
+          FROM heroku/heroku:18
 
           # Entrypoint cannot exit or the container will not stay booted
           #

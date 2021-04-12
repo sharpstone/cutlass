@@ -7,11 +7,15 @@ references:
   fast_specs: &fast_specs
     run:
       name: Run tests
-      command: PARALLEL_SPLIT_TEST_PROCESSES="4" IS_RUNNING_ON_CI=1 bundle exec parallel_split_test spec/ --tag  \~slow
+      command: CUTLASS_CHECK_DOCKER=1 PARALLEL_SPLIT_TEST_PROCESSES="4" IS_RUNNING_ON_CI=1 bundle exec parallel_split_test spec/ --tag  \~slow
   slow_specs: &slow_specs
     run:
       name: Run tests
-      command: PARALLEL_SPLIT_TEST_PROCESSES="4" IS_RUNNING_ON_CI=1 bundle exec parallel_split_test spec/ --tag slow
+      command: CUTLASS_CHECK_DOCKER=1 PARALLEL_SPLIT_TEST_PROCESSES="4" IS_RUNNING_ON_CI=1 bundle exec parallel_split_test spec/ --tag slow
+  docker_pre_pull: &docker_pre_pull
+    run:
+      name: Pre-pull layers we don't intentd to clean up
+      command: docker pull heroku/heroku:18 && docker pull heroku/pack:18 && heroku/buildpacks:18
   standardrb: &standardrb
     run:
       name: Linting
@@ -26,6 +30,7 @@ jobs:
       - pack/install-pack:
           version: 0.16.0
       - ruby/install-deps
+      - <<: *docker_pre_pull
       - <<: *fast_specs
   slow_specs:
     machine:
@@ -35,6 +40,7 @@ jobs:
       - pack/install-pack:
           version: 0.16.0
       - ruby/install-deps
+      - <<: *docker_pre_pull
       - <<: *slow_specs
   standardrb:
     docker:

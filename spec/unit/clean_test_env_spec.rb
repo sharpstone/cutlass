@@ -32,7 +32,7 @@ module Cutlass
         dir = Pathname(dir)
         dockerfile = dir.join("Dockerfile")
         dockerfile.write <<~EOM
-          FROM alpine
+          FROM heroku/heroku:18
           CMD ["echo", "Hello world #{image_name}!"]
         EOM
 
