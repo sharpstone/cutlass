@@ -12,7 +12,7 @@ references:
   standardrb: &standardrb
     run:
       name: Linting
-      command: standardrb
+      command: bundle exec standardrb
 
 jobs:
   specs:
