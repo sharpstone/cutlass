@@ -16,12 +16,16 @@ module Cutlass
     def initialize(stdout:, stderr:, status:)
       @stdout = stdout
       @stderr = stderr
-      @status = status
+      @status = status.to_i
     end
 
     # @return [Boolean]
     def success?
       @status == 0
+    end
+
+    def to_s
+      stdout
     end
   end
 end

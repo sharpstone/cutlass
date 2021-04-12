@@ -64,81 +64,60 @@ module Cutlass
       raise "Must call with a block" unless block_given?
 
       @container.start!
-      # puts @container.logs(stdout: 1, stderr: 1)
+      stdout = @container.logs(stdout: 1)
+      stderr = @container.logs(stderr: 1)
       yield ContainerControl.new(@container)
+    rescue Docker::Error::ConflictError => e
+      raise e, <<~EOM
+        boot stdout: #{stdout}
+        boot stderr: #{stderr}
+      EOM
     ensure
       @container&.delete(force: true)
     end
   end
 
   RSpec.describe Cutlass::ContainerBoot do
-    it "builds", slow: true do
+    it " allows exec in a container and exposing container port", slow: true do
       Dir.mktmpdir do |dir|
-        App.new(
-          dir,
-          builder: default_heroku_builder,
-          buildpacks: ["heroku/ruby", "heroku/procfile"]
-        ).transaction do |app|
-          app.tmpdir.join("Gemfile").write(<<~EOM)
-          EOM
+        dir = Pathname(dir)
 
-          app.tmpdir.join("Gemfile.lock").write(<<~EOM)
-            GEM
-              specs:
+        image_name = Cutlass.default_image_name
+        dockerfile = dir.join("Dockerfile")
+        dockerfile.write <<~EOM
+          FROM heroku/heroku:20
 
-            PLATFORMS
-              ruby
-              x86_64-darwin-19
-              x86_64-linux
+          # Entrypoint cannot exit or the container will not stay booted
+          #
+          # This command is an echo server with socat
+          # link: https://gist.github.com/ramn/cfe0021b48c3e5d1f3f3#file-socat_http_echo_server-sh
+          #
+          ENTRYPOINT socat -v -T0.05 tcp-l:8080,reuseaddr,fork system:"echo 'HTTP/1.1 200 OK'; echo 'Connection: close'; echo; cat"
+        EOM
 
-            DEPENDENCIES
+        run!("docker build -t #{image_name} #{dir.join(".")} 2>&1")
+        image = Docker::Image.get(image_name)
 
-            RUBY VERSION
-               ruby 2.7.2p137
-          EOM
+        ContainerBoot.new(image_id: image.id, expose_ports: [8080]).call do |container|
+          expect(container.contains_file?("lol")).to be_falsey
 
-          app.tmpdir.join("Procfile").write(<<~EOM)
-            web: touch foo && tail -f foo
-          EOM
+          container.bash_exec("touch lol")
+          expect(container.contains_file?("lol")).to be_truthy
 
-          app.pack_build do |result|
-            # puts result.stdout
-            # puts result.stderr
+          payload = SecureRandom.hex(10)
+          response = Excon.post(
+            "http://localhost:#{container.get_host_port(8080)}/?payload=#{payload}",
+            idempotent: true,
+            retry_limit: 5,
+            retry_interval: 1
+          )
 
-            image = Docker::Image.get(app.image_name)
-            ContainerBoot.new(image_id: image.id).call do |container|
-              expect(container.contains_file?("lol")).to be_falsey
-
-              expect(container.bash_exec("ls /app").stdout).to include("Gemfile")
-            end
-          end
+          expect(response.body).to include("?payload=#{payload}")
+          expect(response.status).to eq(200)
         end
+      ensure
+        image&.remove(force: true)
       end
     end
-
-    # it "builds", slow: true do
-    #   Dir.mktmpdir do |dir|
-    #     dir = Pathname(dir)
-
-    #     image_name = Cutlass.default_image_name
-    #     dockerfile = dir.join("Dockerfile")
-    #     dockerfile.write <<~EOM
-    #       FROM alpine
-
-    #     EOM
-
-    #     puts run!("docker build -t #{image_name} #{dir.join(".")} 2>&1")
-    #     image = Docker::Image.get(image_name)
-
-    #     ContainerBoot.new(image_id: image.id).call do |container|
-    #       expect(container.contains_file?("lol")).to be_falsey
-
-    #       container.bash_exec("touch lol")
-    #       expect(container.contains_file?("lol")).to be_truthy
-    #     end
-    #   ensure
-    #     image&.remove(force: true)
-    #   end
-    # end
   end
 end
