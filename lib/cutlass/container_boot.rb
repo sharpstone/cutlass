@@ -62,8 +62,10 @@ module Cutlass
       stdout = @container.logs(stdout: 1)
       stderr = @container.logs(stderr: 1)
       yield ContainerControl.new(@container, ports: @expose_ports)
-    rescue Docker::Error::ConflictError => e
-      raise e, <<~EOM
+    rescue => error
+      raise error, <<~EOM
+        message #{error.message}
+
         boot stdout: #{stdout}
         boot stderr: #{stderr}
       EOM
