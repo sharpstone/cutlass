@@ -46,6 +46,10 @@ module Cutlass
             expect(e.message).to include(image_name)
           end
         ensure
+          # If we don't delete this env var, then the suite exit check fires
+          # after this test, and we just mutated it's global state so it will likely
+          # fail in a multi-process environment.
+          ENV.delete("CUTLASS_CHECK_DOCKER")
           Docker::Image.get(image_name)&.remove(force: true) if image_name
         end
       end
