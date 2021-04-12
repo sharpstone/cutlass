@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module Cutlass
-
   RSpec.describe Cutlass::ContainerBoot do
     it " allows exec in a container and exposing container port", slow: true do
       Dir.mktmpdir do |dir|

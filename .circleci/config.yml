@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  pack: buildpacks/pack@0.2.0
+  pack: buildpacks/pack@0.2.2
   ruby: circleci/ruby@1.1.2
 
 references:
@@ -8,6 +8,11 @@ references:
     run:
       name: Run test suite
       command: PARALLEL_SPLIT_TEST_PROCESSES="4" IS_RUNNING_ON_CI=1 bundle exec parallel_split_test spec/
+
+  standardrb: &standardrb
+    run:
+      name: Linting
+      command: standardrb
 
 jobs:
   specs:
@@ -20,10 +25,18 @@ jobs:
       - pack/install-pack
       - ruby/install-deps
       - <<: *specs
+  standardrb:
+    docker:
+      - image: circleci/ruby:2.7
+    steps:
+      - checkout
+      - ruby/install-deps
+      - <<: *standardrb
 
 workflows:
   version: 2
   build:
     jobs:
       - specs
+      - standardrb
 

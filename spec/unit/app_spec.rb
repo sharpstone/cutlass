@@ -9,7 +9,7 @@ module Cutlass
         App.new(
           app_dir,
           builder: "heroku/buildpacks:18",
-          buildpacks: ["heroku/ruby", "heroku/procfile"],
+          buildpacks: ["heroku/ruby", "heroku/procfile"]
         ).transaction do |app|
           app.tmpdir.join("Gemfile").write(<<~EOM)
           EOM
@@ -40,14 +40,12 @@ module Cutlass
           # App#stdout is the same as App#last_build.stdout
           expect(app.stdout).to include("Successfully built image")
 
-
           expect(app.run("pwd")).to match("/workspace")
 
           app.run_multi("pwd") do |result|
             run_multi_called_string = "called"
             expect(result).to match("/workspace")
           end
-
 
           app.start_container do |container|
             expect(container.bash_exec("ls /app")).to include("Gemfile")
