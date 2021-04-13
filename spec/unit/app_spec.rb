@@ -2,6 +2,27 @@
 
 module Cutlass
   RSpec.describe Cutlass::App do
+    it "completes teardown callbacks before erroring" do
+      Dir.mktmpdir do |app_dir|
+        stringio = StringIO.new
+        expect {
+          App.new(app_dir, warn_io: stringio).transaction do |app|
+            app.on_teardown do
+              raise "nopenopenope"
+            end
+
+            app.on_teardown do
+              raise "houston we have a problem"
+            end
+          end
+        }.to raise_error do |e|
+          expect(e.message).to match("houston we have a problem")
+        end
+
+        expect(stringio.string).to include("houston we have a problem")
+        expect(stringio.string).to include("nopenopenope")
+      end
+    end
     it "builds", slow: true do
       Dir.mktmpdir do |app_dir|
         run_multi_called_string = nil

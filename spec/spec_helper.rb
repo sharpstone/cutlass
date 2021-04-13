@@ -2,6 +2,7 @@
 
 require "cutlass"
 require "securerandom"
+require "stringio"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
