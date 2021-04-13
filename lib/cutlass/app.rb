@@ -18,7 +18,7 @@ module Cutlass
     def initialize(
       source_path_name,
       config: {},
-      warn_io: STDERR,
+      warn_io: $stderr,
       builder: Cutlass.default_builder,
       image_name: Cutlass.default_image_name,
       buildpacks: Cutlass.default_buildpack_paths,
@@ -137,24 +137,23 @@ module Cutlass
 
     def teardown
       errors = []
-      @on_teardown.reverse.each do |callback|
+      @on_teardown.reverse_each do |callback|
         # Attempt to run all teardown callbacks
-        begin
-          callback.call
-        rescue => e
-          errors << e
 
-          @warn_io.puts <<~EOM
+        callback.call
+      rescue => e
+        errors << e
 
-            Error in teardown #{callback.inspect}
+        @warn_io.puts <<~EOM
 
-            It will be raised after all teardown blocks have completed
+          Error in teardown #{callback.inspect}
 
-            #{e.message}
+          It will be raised after all teardown blocks have completed
 
-            #{e.backtrace.join($/)}
-          EOM
-        end
+          #{e.message}
+
+          #{e.backtrace.join($/)}
+        EOM
       end
     ensure
       errors.each do |e|
