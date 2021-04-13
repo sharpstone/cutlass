@@ -3,6 +3,7 @@
 require "tempfile"
 require "fileutils"
 require "pathname"
+require "securerandom"
 
 require "docker" # docker-api gem
 
@@ -49,6 +50,10 @@ module Cutlass
 
       #{children.map(&:basename).join($/)}
     EOM
+  end
+
+  def self.debug?
+    ENV["CUTLASS_DEBUG"] || ENV["DEBUG"]
   end
 
   def self.default_image_name

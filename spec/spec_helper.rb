@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "cutlass"
-require "securerandom"
 require "stringio"
 
 RSpec.configure do |config|

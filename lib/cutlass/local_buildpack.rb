@@ -58,8 +58,12 @@ module Cutlass
     private def call_pack_buildpack_package
       raise "must contain package.toml: #{@directory}" unless @directory.join("package.toml").exist?
 
-      pack_command = "pack buildpack package #{image_name} --config #{@directory.join("package.toml")} --format=image"
-      result = BashResult.run(pack_command)
+      command = "pack buildpack package #{image_name} --config #{@directory.join("package.toml")} --format=image"
+      result = BashResult.run(command)
+
+      puts command if Cutlass.debug?
+      puts result.stdout if Cutlass.debug?
+      puts result.stderr if Cutlass.debug?
 
       return if result.success?
       raise <<~EOM
@@ -75,7 +79,12 @@ module Cutlass
       build_sh = @directory.join("build.sh")
       return unless build_sh.exist?
 
-      result = BashResult.run("cd #{@directory} && bash #{build_sh}")
+      command = "cd #{@directory} && bash #{build_sh}"
+      result = BashResult.run(command)
+
+      puts command if Cutlass.debug?
+      puts result.stdout if Cutlass.debug?
+      puts result.stderr if Cutlass.debug?
 
       return if result.success?
 

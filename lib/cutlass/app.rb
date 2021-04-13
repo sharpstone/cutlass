@@ -114,6 +114,8 @@ module Cutlass
     end
 
     def transaction
+      raise "No block given" unless block_given?
+
       in_dir do
         yield self
       ensure

@@ -69,8 +69,11 @@ module Cutlass
     end
 
     def call
-      puts pack_command if ENV["CUTLASS_DEBUG"] || ENV["DEBUG"]
+      puts pack_command if Cutlass.debug?
       call_pack
+
+      puts @result.stdout if Cutlass.debug?
+      puts @result.stderr if Cutlass.debug?
       self
     end
 
@@ -109,7 +112,7 @@ module Cutlass
     end
 
     def pack_command
-      "pack build #{image_name} --path #{app_dir} #{builder_arg} --buildpack #{buildpacks.join(",")} #{env_arguments}"
+      "pack build #{image_name} --path #{app_dir} #{builder_arg} --buildpack #{buildpacks.join(",")} #{env_arguments} #{"-v" if Cutlass.debug?}"
     end
   end
 end
