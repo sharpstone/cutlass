@@ -1,13 +1,58 @@
 version: 2.1
+orbs:
+  pack: buildpacks/pack@0.2.2
+  ruby: circleci/ruby@1.1.2
+
+references:
+  fast_specs: &fast_specs
+    run:
+      name: Run tests
+      command: PARALLEL_SPLIT_TEST_PROCESSES="4" IS_RUNNING_ON_CI=1 bundle exec parallel_split_test spec/ --tag  \~slow
+  slow_specs: &slow_specs
+    run:
+      name: Run tests
+      command: PARALLEL_SPLIT_TEST_PROCESSES="4" IS_RUNNING_ON_CI=1 bundle exec parallel_split_test spec/ --tag slow
+  docker_pre_pull: &docker_pre_pull
+    run:
+      name: Pre-pull layers we don't intentd to clean up
+      command: docker pull heroku/heroku:18 && docker pull heroku/pack:18 && docker pull heroku/buildpacks:18
+  standardrb: &standardrb
+    run:
+      name: Linting
+      command: bundle exec standardrb
+
 jobs:
-  build:
-    docker:
-      - image: ruby:3.0.0
+  fast_specs:
+    machine:
+      image: ubuntu-2004:202010-01
     steps:
       - checkout
-      - run:
-          name: Run the default task
-          command: |
-            gem install bundler -v 2.2.15
-            bundle install
-            bundle exec rake
+      - pack/install-pack:
+          version: 0.16.0
+      - ruby/install-deps
+      - <<: *fast_specs
+  slow_specs:
+    machine:
+      image: ubuntu-2004:202010-01
+    steps:
+      - checkout
+      - pack/install-pack:
+          version: 0.16.0
+      - ruby/install-deps
+      - <<: *slow_specs
+  standardrb:
+    docker:
+      - image: circleci/ruby:2.7
+    steps:
+      - checkout
+      - ruby/install-deps
+      - <<: *standardrb
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - fast_specs
+      - slow_specs
+      - standardrb
+
